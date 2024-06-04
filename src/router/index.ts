@@ -1,3 +1,6 @@
+import ActiveTabView from '@/views/ActiveTabView/ActiveTabView.vue'
+import CheckoutView from '@/views/CheckoutView/CheckoutView.vue'
+import TabBarView from '@/views/TabBarView/TabBarView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
@@ -6,17 +9,17 @@ const router = createRouter({
     {
       path: '/',
       name: 'tab-bar',
-      component: () => import('../views/TabBarView/TabBarView.vue')
+      component: TabBarView
     },
     {
       path: '/active-tab/:owner',
       name: 'active-tab',
-      component: () => import('../views/ActiveTabView/ActiveTabView.vue')
+      component: ActiveTabView
     },
     {
       path: '/checkout/:owner',
       name: 'checkout',
-      component: () => import('../views/CheckoutView/CheckoutView.vue')
+      component: CheckoutView
     }
   ]
 })
