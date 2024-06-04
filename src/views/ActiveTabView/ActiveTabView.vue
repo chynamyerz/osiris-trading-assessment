@@ -2,11 +2,13 @@
   <section>
     <nav>
       <v-btn class="button" variant="elevated" @click="$router.back()">Back</v-btn>
-      <v-btn class="button" variant="elevated" @click="goToCheckout">Checkout</v-btn>
     </nav>
     <div class="active-tab-view">
       <div class="tab-details">
-        <TabDetails :roundsData="roundsData" :owner="tabOwner" />
+        <TabDetails />
+      </div>
+      <div class="tab-bill">
+        <TabBill />
       </div>
     </div>
   </section>
@@ -14,39 +16,30 @@
 
 <script setup lang="ts">
 import TabDetails from './components/TabDetails/TabDetails.vue'
-import { useRoute } from 'vue-router'
-import type { TabRoundData } from '@/stores/types'
-import { useTabBarStore } from '@/stores/tabBar'
-import router from '@/router'
-
-const route = useRoute()
-const { ownerActiveTabs } = useTabBarStore()
-
-const tabOwner = (route.params?.owner as string) || ''
-
-const roundsData: TabRoundData[] =
-  ownerActiveTabs.find((ownerActiveTab) => ownerActiveTab.owner === tabOwner)?.rounds || []
-
-function goToCheckout() {
-  router.push({
-    name: 'checkout',
-    params: {
-      owner: tabOwner
-    }
-  })
-}
+import TabBill from './components/TabBill/TabBill.vue'
 </script>
 
 <style scoped>
 section {
   display: flex;
   flex-direction: column;
+  gap: 1rem;
   padding: 1rem;
 }
-
-nav {
+.active-tab-view {
   display: flex;
   justify-content: space-between;
-  padding: 1rem;
+  gap: 2rem;
+}
+
+.tab-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 50%;
+}
+
+.tab-bill {
+  width: 50%;
 }
 </style>

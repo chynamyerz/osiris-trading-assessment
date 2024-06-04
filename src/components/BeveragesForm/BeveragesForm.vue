@@ -10,6 +10,13 @@
       variant="outlined"
       border
     ></v-alert>
+    <v-alert
+      v-if="successMessage.length > 0"
+      :text="successMessage"
+      color="success"
+      variant="outlined"
+      border
+    ></v-alert>
     <form>
       <v-text-field
         type="text"
@@ -52,8 +59,8 @@ import { computed, ref } from 'vue'
 
 const { owner } = defineProps<{
   title: string
-  owner?: string
   buttonText: string
+  owner?: string
 }>()
 
 const tabBarStore = useTabBarStore()
@@ -64,6 +71,7 @@ const beerQty = ref(0)
 const ciderQty = ref(0)
 const premixQty = ref(0)
 const errorMessage = ref('')
+const successMessage = ref('')
 
 const rules = computed(() => ({
   required: (value: string) => !!value || 'Required'
@@ -103,6 +111,21 @@ function addNewTab() {
   })
 
   tabBarStore.addTab(tabOwner.value, order)
+
+  if (!owner) {
+    successMessage.value = 'Tab added successfuly'
+  } else {
+    successMessage.value = 'Tab round added successfuly, click close button when done'
+  }
+
+  tabOwner.value = ''
+  beerQty.value = 0
+  ciderQty.value = 0
+  premixQty.value = 0
+
+  setTimeout(() => {
+    successMessage.value = ''
+  }, 5000)
 }
 </script>
 

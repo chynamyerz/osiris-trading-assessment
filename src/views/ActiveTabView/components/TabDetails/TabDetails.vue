@@ -1,7 +1,7 @@
 <template>
   <section>
     <header>
-      <h1>{{ owner }} tab details</h1>
+      <h1>{{ owner }}'s tab details</h1>
     </header>
 
     <v-card v-if="roundsData.length > 0" class="tab-details">
@@ -16,7 +16,6 @@
 
             <v-card-actions>
               <v-spacer></v-spacer>
-
               <v-btn class="button" text="Close" @click="isActive.value = false"></v-btn>
             </v-card-actions>
           </v-card>
@@ -36,8 +35,18 @@
 import type { TabRoundData } from '@/stores/types'
 import TabRound from './TabRound.vue'
 import BeveragesForm from '@/components/BeveragesForm/BeveragesForm.vue'
+import { useRoute } from 'vue-router'
+import { useTabBarStore } from '@/stores/tabBar'
+import { ref } from 'vue'
 
-defineProps<{ roundsData: TabRoundData[]; owner: string }>()
+const route = useRoute()
+const { ownerActiveTabs } = useTabBarStore()
+
+const owner = (route.params?.owner as string) || ''
+
+const roundsData = ref<TabRoundData[]>(
+  ownerActiveTabs.find((ownerActiveTab) => ownerActiveTab.owner === owner)?.rounds || []
+)
 </script>
 
 <style scoped>

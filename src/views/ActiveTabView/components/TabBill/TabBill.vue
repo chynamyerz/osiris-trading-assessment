@@ -1,8 +1,8 @@
 <template>
   <section>
-    <nav>
-      <v-btn class="button" variant="elevated" @click="$router.back()">Back</v-btn>
-    </nav>
+    <header>
+      <h1>{{ tabOwner }}'s Bill</h1>
+    </header>
     <v-card class="tab-bill">
       <div class="tab-bill-total">
         <p>Total: R {{ billTotal.toFixed(2) }}</p>
@@ -36,10 +36,10 @@
 <script setup lang="ts">
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-quartz.css'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { AgGridVue } from 'ag-grid-vue3'
 import type { ColDef } from 'ag-grid-community'
-import type { OrderedBeverageData, TabRoundData } from '@/stores/types'
+import type { ActiveTabData, OrderedBeverageData, TabRoundData } from '@/stores/types'
 import { useRoute } from 'vue-router'
 import { useTabBarStore } from '@/stores/tabBar'
 
@@ -50,6 +50,7 @@ interface ColomnDef extends OrderedBeverageData {
 const route = useRoute()
 const { ownerActiveTabs } = useTabBarStore()
 
+const tabOwner = (route.params?.owner as string) || ''
 const isBillSplit = ref(false)
 const numberOfPeople = ref(0)
 const colDefs = ref<ColDef<ColomnDef>[]>([
@@ -64,39 +65,49 @@ const colDefs = ref<ColDef<ColomnDef>[]>([
     valueFormatter: (param) => `R ${(param.data!.price * param.data!.quantity).toFixed(2)}`
   }
 ])
-
 const defColDefs = ref<ColDef>({ flex: 1 })
+const totalBillData = ref(sumAllRoundsData(ownerActiveTabs))
+const billTotal = ref(calculateBillTotal(totalBillData.value))
 
-const tabOwner = (route.params?.owner as string) || ''
-
-const roundsData: TabRoundData[] =
-  ownerActiveTabs.find((ownerActiveTab) => ownerActiveTab.owner === tabOwner)?.rounds || []
-const allRoundsData = roundsData.flatMap((roundData) => roundData.orders)
-
-const bevQuantities: { [k: string]: OrderedBeverageData } = {}
-
-for (const roundData of allRoundsData.values()) {
-  if (Object.keys(bevQuantities).includes(roundData.beverage)) {
-    bevQuantities[roundData.beverage] = {
-      ...roundData,
-      quantity: bevQuantities[roundData.beverage].quantity + roundData.quantity
-    }
-  } else {
-    bevQuantities[roundData.beverage] = roundData
-  }
-}
-
-const totalBillData: OrderedBeverageData[] = Object.keys(bevQuantities).map((key) => {
-  return {
-    beverage: key,
-    price: bevQuantities[key].price,
-    quantity: bevQuantities[key].quantity
-  }
+watch(ownerActiveTabs, async (newOwnerActiveTabs) => {
+  totalBillData.value = sumAllRoundsData(newOwnerActiveTabs)
 })
 
-const billTotal = totalBillData.reduce((prevValue, currValue) => {
-  return (prevValue += currValue.price * currValue.quantity)
-}, 0)
+watch(totalBillData, async (newTotalBillData) => {
+  billTotal.value = calculateBillTotal(newTotalBillData)
+})
+
+function sumAllRoundsData(ownersTabs: ActiveTabData[]): OrderedBeverageData[] {
+  const roundsData: TabRoundData[] =
+    ownersTabs.find((ownerActiveTab) => ownerActiveTab.owner === tabOwner)?.rounds || []
+  const allRoundsData = roundsData.flatMap((roundData) => roundData.orders)
+  const bevQuantities: { [k: string]: OrderedBeverageData } = {}
+
+  for (const roundData of allRoundsData.values()) {
+    if (Object.keys(bevQuantities).includes(roundData.beverage)) {
+      bevQuantities[roundData.beverage] = {
+        ...roundData,
+        quantity: bevQuantities[roundData.beverage].quantity + roundData.quantity
+      }
+    } else {
+      bevQuantities[roundData.beverage] = roundData
+    }
+  }
+
+  return Object.keys(bevQuantities).map((key) => {
+    return {
+      beverage: key,
+      price: bevQuantities[key].price,
+      quantity: bevQuantities[key].quantity
+    }
+  })
+}
+
+function calculateBillTotal(billData: OrderedBeverageData[]) {
+  return billData.reduce((prevValue, currValue) => {
+    return (prevValue += currValue.price * currValue.quantity)
+  }, 0)
+}
 </script>
 
 <style scoped>
