@@ -1,8 +1,8 @@
 <template>
   <v-card class="active-tab">
-    <div>{{ tabOwner }}</div>
-    <div>{{ roundSummary }}</div>
-    <div>
+    <div class="active-tab-content">{{ tabOwner }}</div>
+    <div class="active-tab-content">{{ roundSummary }}</div>
+    <div class="active-tab-button">
       <v-btn class="button" color="blue" size="small" variant="outlined" @click="viewTab"
         >View</v-btn
       >
@@ -39,6 +39,11 @@ function viewTab() {
 .active-tab {
   display: flex;
   justify-content: space-between;
+  gap: 1rem;
   padding: 1rem;
+
+  .active-tab-content {
+    flex: 1;
+  }
 }
 </style>

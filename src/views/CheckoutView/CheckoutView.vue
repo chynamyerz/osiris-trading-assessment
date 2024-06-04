@@ -29,7 +29,6 @@
           <p>Each person's total: R {{ (billTotal / numberOfPeople).toFixed(2) }}</p>
         </div>
       </div>
-      <div><v-btn class="button" color="blue" variant="outlined"> Pay </v-btn></div>
     </v-card>
   </section>
 </template>
